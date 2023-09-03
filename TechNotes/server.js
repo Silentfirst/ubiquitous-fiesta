@@ -6,7 +6,7 @@ const app = express();
 const cookieParser=require('cookie-parser')
 const PORT = process.env.PORT || 3500 
 const path = require('path')
-const {logger, logEvents } = require('./middleware/logger')
+const { logger, logEvents } = require('./middleware/logger')
 const errorHandler= require('./middleware/errorHandler')
 const cors =require('cors')
 const corsOptions=require('./config/corsOptions')
@@ -22,6 +22,7 @@ app.use(express.json())
 app.use('/', express.static(path.join(__dirname, '/public')))
 app.use('/',require('./routes/root'))
 app.use('/users',require('./routes/userRoutes'))
+app.use('/notes',require('./routes/noteRoutes'))
 
 
 
@@ -41,7 +42,7 @@ app.use(errorHandler)
 
 
 mongoose.connection.once('open',()=>{
-    console.log("Connected to MONGODB")
+    console.log("Connected to MongoDB ")
     app.listen(PORT,()=>{console.log(`server listening at port-${PORT}`)})
 
 })
