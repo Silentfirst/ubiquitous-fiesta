@@ -6,10 +6,14 @@ const app = express();
 const cookieParser=require('cookie-parser')
 const PORT = process.env.PORT || 3500 
 const path = require('path')
-const {logger} = require('./middleware/logger')
+const {logger, logEvents } = require('./middleware/logger')
 const errorHandler= require('./middleware/errorHandler')
 const cors =require('cors')
 const corsOptions=require('./config/corsOptions')
+const connectDB=require('./config/dbConn')
+const mongoose= require('mongoose')
+ 
+connectDB()
 
 app.use(logger)
 app.use(cors(corsOptions))
@@ -17,6 +21,9 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use('/', express.static(path.join(__dirname, '/public')))
 app.use('/',require('./routes/root'))
+app.use('/users',require('./routes/userRoutes'))
+
+
 
 app.all('*',(req,res)=>{
     res.status(404)
@@ -30,6 +37,16 @@ app.all('*',(req,res)=>{
 
 })
 
-
-app.listen(PORT,()=>{console.log(`server listening at port-${PORT}`)})
 app.use(errorHandler)
+
+
+mongoose.connection.once('open',()=>{
+    console.log("Connected to MONGODB")
+    app.listen(PORT,()=>{console.log(`server listening at port-${PORT}`)})
+
+})
+
+mongoose.connection.on('error',err=>{
+    console.log(err)
+    logEvents(`${err.no} : ${err.code}\t${err.syscall}\t${err.hostname}`,'mongoErrLog.log')
+}) 
